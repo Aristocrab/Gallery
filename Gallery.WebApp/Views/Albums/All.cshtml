@@ -1,0 +1,131 @@
+﻿@model List<Gallery.Domain.Entities.Albums.Album>
+@{
+    ViewData["Title"] = "Усі альбоми";
+}
+
+@* Виведення усіх альбомів *@
+<h1 class="mb-3">
+    Усі альбоми: 
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Створити</button>
+</h1>
+
+<div class="gallery__grid g-4" style="display: grid; grid-template-columns: 3fr 1fr; grid-gap: 3em;">
+    <div class="gallery__elements">
+        <div class="list-group">
+            @foreach (var album in Model)
+            {
+                <a href="/albums/@album.Id" class="list-group-item list-group-item-action" aria-current="true">
+                    
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">@album.Name (@album.GetAllItems().Count ел.)</h5>
+                        <small>
+                            @album.GetTimeFromCreation().Days дн. 
+                            @album.GetTimeFromCreation().Hours год. 
+                            @album.GetTimeFromCreation().Minutes хв. тому
+                        </small>
+                    </div>
+                    
+                    <p class="mb-1">@album.Description</p>
+                    <small>@album.GetAlbumType()</small>
+                </a>
+            }
+        </div>
+        
+        @if (!Model.Any())
+        {
+            <div class="mt-3">
+                <h3 class="text-secondary">Альбомів ще немає</h3>
+            </div>
+        }
+    </div>
+    
+    <div class="gallery__filter">
+            <form method="get" action="/albums/filter">
+                <h4 class="form-label">Фільтр:</h4>
+                
+                <div class="album_type mt-3">
+                    <h6>Тип альбому:</h6>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="photoAlbums" name="photoAlbums" checked>
+                        <label class="form-check-label" for="photoAlbums">
+                            Фотоальбоми
+                        </label>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="videoAlbums" name="videoAlbums" checked>
+                        <label class="form-check-label" for="videoAlbums">
+                            Відеоальбоми
+                        </label>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="mixedAlbums" name="mixedAlbums" checked>
+                        <label class="form-check-label" for="mixedAlbums">
+                            Змішані альбоми
+                        </label>
+                    </div>
+                </div>
+    
+                <button type="submit" class="mt-4 btn btn-outline-primary">Фільтрувати</button>
+            </form>
+        </div>
+</div>
+
+@* Форма створення *@
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+        <form action="/albums/new">
+            
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Новий альбом</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Назва альбому:</label>
+                    <input type="text" class="form-control" id="exampleFormControlInput1" name="name" placeholder="Гарний альбом" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Опис (не обов'язково):</label>
+                    <textarea class="form-control" id="exampleFormControlTextarea1" name="description" rows="3"></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Тип альбому:</label>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="type" value="photo" id="albumType1" checked>
+                        <label class="form-check-label" for="albumType1">
+                            Фотоальбом
+                        </label>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="type" value="video" id="albumType2">
+                        <label class="form-check-label" for="albumType2">
+                            Відеоальбом
+                        </label>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="type" value="mixed" id="albumType3">
+                        <label class="form-check-label" for="albumType3">
+                            Змішаний альбом
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрити</button>
+                <button type="submit" class="btn btn-primary">Створити</button>
+            </div>
+        </form>
+    </div>
+</div>
+</div>

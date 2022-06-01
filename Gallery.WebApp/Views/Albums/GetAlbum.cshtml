@@ -1,0 +1,158 @@
+﻿@using Gallery.Domain.Entities.Albums
+@model Gallery.Domain.Entities.Albums.Album
+@{
+    ViewData["Title"] = $"{Model.GetAlbumType()} '{Model.Name}'";
+}
+
+@* Сторінка альбому *@
+<h1 class="mb-3">@Model.GetAlbumType() '@Model.Name' (@Model.GetAllItems().Count ел.)
+    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#exampleModal">Редагувати</button> 
+    <a href="/albums/delete/@Model.Id" type="button" class="btn btn-danger">Видалити</a>
+</h1>
+
+<h5>Опис: @(Model.Description ?? "відстуній")</h5>
+<h5>Створено: 
+    @Model.GetTimeFromCreation().Days днів
+    @Model.GetTimeFromCreation().Hours годин
+    @Model.GetTimeFromCreation().Minutes хвилин тому</h5>
+
+@if (Model is PhotoAlbum photoAlbum)
+{
+    <h2>Фото в альбомі:</h2>
+    
+    <div class="gallery__grid g-4">
+        <div class="gallery__elements">
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
+                @foreach (var photo in photoAlbum.Photos)
+                {
+                    <div class="col">
+                        <div class="card h-100">
+                            <a href="/photos/@photo.Id">
+                                <img src="https://picsum.photos/id/@photo.FileId/304/304" class="card-img-top">
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    
+    @if (!photoAlbum.Photos.Any())
+    {
+        <div class="mt-3">
+            <h3 class="text-secondary">Немає</h3>
+        </div>
+    }
+} else if (Model is VideoAlbum videoAlbum)
+{
+    <h2>Відео в альбомі:</h2>
+    
+    <div class="gallery__grid g-4">
+        <div class="gallery__elements">
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
+                @foreach (var video in videoAlbum.Videos)
+                {
+                    <div class="col">
+                        <div class="card h-100">
+                            <a href="/videos/@video.Id">
+                                <img src="https://picsum.photos/id/@video.FileId/304/304" class="card-img-top">
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    
+    @if (!videoAlbum.Videos.Any())
+    {
+        <div class="mt-3">
+            <h3 class="text-secondary">Немає</h3>
+        </div>
+    }
+}
+else if(Model is MixedAlbum mixedAlbum)
+{
+    <h2>Фото в альбомі:</h2>
+    
+    <div class="gallery__grid g-4 mb-3">
+        <div class="gallery__elements">
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
+                @foreach (var photo in mixedAlbum.Photos)
+                {
+                    <div class="col">
+                        <div class="card h-100">
+                            <a href="/photos/@photo.Id">
+                                <img src="https://picsum.photos/id/@photo.FileId/304/304" class="card-img-top">
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    
+    @if (!mixedAlbum.Photos.Any())
+    {
+        <div class="mt-3">
+            <h3 class="text-secondary">Немає</h3>
+        </div>
+    }
+    
+    <h2>Відео в альбомі:</h2>
+    
+    <div class="gallery__grid g-4">
+        <div class="gallery__elements">
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
+                @foreach (var video in mixedAlbum.Videos)
+                {
+                    <div class="col">
+                        <div class="card h-100">
+                            <a href="/videos/@video.Id">
+                                <img src="https://picsum.photos/id/@video.FileId/304/304" class="card-img-top">
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    
+    @if (!mixedAlbum.Videos.Any())
+    {
+        <div class="mt-3">
+            <h3 class="text-secondary">Немає</h3>
+        </div>
+    }
+}
+
+@* Форма редагування *@
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+        <form action="/albums/update/@Model.Id">
+            
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Редагувати</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Назва альбому:</label>
+                    <input type="text" class="form-control" id="exampleFormControlInput1" name="name" value="@Model.Name" placeholder="Гарний альбом" required>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Опис (не обов'язково):</label>
+                    <textarea class="form-control" id="exampleFormControlTextarea1" name="description" rows="3">@Model.Description</textarea>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрити</button>
+                <button type="submit" class="btn btn-primary">Редагувати</button>
+            </div>
+        </form>
+    </div>
+</div>
+</div>

@@ -1,0 +1,162 @@
+﻿@using Gallery.Domain.Entities
+@using Gallery.Domain.Entities.Albums
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Gallery.Domain.Entities.CapturedOnCamera.Video
+@{
+    ViewData["Title"] = "Відео";
+}
+
+@* Сторінка відео *@
+<div class="row row-cols-1 row-cols-md-2">
+    <div class="col">
+        <h1>Відео:
+            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#exampleModal">Редагувати</button> 
+            <a href="/videos/delete/@Model.Id" type="button" class="btn btn-danger">Видалити</a>
+        </h1>
+        
+        <img class="img-fluid mb-2" src="https://picsum.photos/id/@Model.FileId/500/500" alt="">
+        
+        <h4>Опис: @(Model.Description ?? "відсутній")</h4>
+        <h4>Місце зйомки: @(Model.Place ?? "не вказано")</h4>
+        <h4>Довжина: @Model.GetLengthInMinutes()</h4>
+        <h4>Звук: @(Model.HasSound ? "є" : "немає")</h4>
+        <h4>Створено: @(Model.GetTimeFromCreation().Minutes) хв тому</h4>
+    </div>
+    
+    <div class="col">
+        <h2>Альбоми з цим відео (@Model.GetAlbumsCount()):</h2>
+        <ul class="list-group mb-3">
+            @foreach (var album in Model.Albums)
+            {
+                <li class="list-group-item"><a href="/albums/@album.Id">@album.Name</a></li>
+            }
+        </ul>
+        @if (!Model.Albums.Any())
+        {
+             <div class="mt-3">
+                <h3 class="text-secondary">Немає</h3>
+            </div>
+        }
+        
+        <h2>Режим зйомки:</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Роздільна здатність</th>
+                <th scope="col">Витримка</th>
+                <th scope="col">ISO</th>
+            </tr>
+            </thead>
+            
+            <tbody>
+            <tr>
+                <td><a href="/camerasettings/@Model.CameraSetting.Id">@(Model.CameraSetting.ResolutionWidth)x@(Model.CameraSetting.ResolutionHeight) (@Model.CameraSetting.GetResolutionType())</a></td>
+                <td>1/@Model.CameraSetting.ExposureTime сек</td>
+                <td>@Model.CameraSetting.ISO (@Model.CameraSetting.GetIsoType())</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@* Форма редагування *@
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="/videos/update/@Model.Id" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Редагувати відео</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <div class="modal-body">
+                    <div>
+                        <img id="video" src="https://picsum.photos/id/@Model.FileId/800/800" class="img-thumbnail" alt="...">
+                        <input id="fileId" type="number" style="display: none;" name="fileId" value="@Model.FileId">
+                        <button onclick="reselectVideo()" type="button" class="btn btn-primary mt-1">Переобрати</button>
+                    </div>
+
+                    <div class="mb-3 mt-3">
+                        <label for="exampleFormControlInput1" class="form-label">Альбом:</label>
+                        <select class="form-select" name="albumIds" multiple>
+                            @foreach (var album in Album.GetVideoAlbums())
+                            {
+                                if (Model.Albums.Contains(album))
+                                {
+                                    <option selected value="@album.Id">@album.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@album.Id">@album.Name</option>
+                                }
+                            }
+                            @foreach (var album in Album.GetMixedAlbums())
+                            {
+                                if (Model.Albums.Contains(album))
+                                {
+                                    <option selected value="@album.Id">@album.Name (змішаний)</option>
+                                }
+                                else
+                                {
+                                    <option value="@album.Id">@album.Name (змішаний)</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="exampleFormControlInput1" class="form-label" required>Режим зйомки:</label>
+                        <select class="form-select" name="cameraSettingId">
+                            @foreach (var cs in CameraSetting.Items)
+                            {
+                                if (cs == Model.CameraSetting)
+                                {
+                                    <option selected value="@cs.Id">@(cs.ResolutionWidth)x@(cs.ResolutionHeight) | @cs.ExposureTime | @cs.ISO</option>
+                                }
+                                else
+                                {
+                                    <option value="@cs.Id">@(cs.ResolutionWidth)x@(cs.ResolutionHeight) | @cs.ExposureTime | @cs.ISO</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <input class="form-check-input" type="checkbox" @(Model.HasSound ? "checked" : "") id="flexCheckDefault" name="hasSound">
+                        <label class="form-check-label" for="flexCheckDefault">
+                            Відео має звук
+                        </label>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="exampleFormControlInput1" class="form-label">Довжина (в секундах):</label>
+                        <input type="number" class="form-control" id="exampleFormControlInput3" value="@Model.Length" min="1"  name="length" placeholder="60" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="exampleFormControlInput1" class="form-label">Місце зйомки (не обов'язково):</label>
+                        <input type="text" class="form-control" id="exampleFormControlInput1" value="@Model.Place" name="place" placeholder="Житомир">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="exampleFormControlInput1" class="form-label">Коментар (не обов'язково):</label>
+                        <textarea class="form-control" id="exampleFormControlTextarea1" name="description" rows="3">@Model.Description</textarea>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрити</button>
+                    <button type="submit" class="btn btn-primary">Редагувати</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function reselectVideo() {
+    let randomId = Math.floor(Math.random() * 100) + 1;
+    document.getElementById('fileId').setAttribute('value', randomId.toString());
+    document.getElementById('video').setAttribute('src', 'https://picsum.photos/id/' + randomId + '/800/800');
+}
+</script>

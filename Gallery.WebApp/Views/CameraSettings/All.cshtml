@@ -1,0 +1,76 @@
+﻿@model List<Gallery.Domain.Entities.CameraSetting>
+@{
+    ViewData["Title"] = "Усі режими зйомки";
+}
+
+@* Виведення усіх зйомки *@
+<h1 class="mb-3">
+    Усі режими зйомки: 
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Додати</button>
+</h1>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col">Роздільна здатність</th>
+        <th scope="col">Витримка</th>
+        <th scope="col">ISO</th>
+    </tr>
+    </thead>
+    
+  <tbody>
+    @foreach (var cs in Model)
+    {
+        <tr>
+            <td>
+                <a href="/camerasettings/@cs.Id">@(cs.ResolutionWidth)x@(cs.ResolutionHeight) (@cs.GetResolutionType())</a> (@cs.GetAllItems().Count ел.)
+            </td>
+            <td>1/@cs.ExposureTime сек</td>
+            <td>@cs.ISO (@cs.GetIsoType())</td>
+        </tr>
+    }
+  </tbody>
+</table>
+
+@if (!Model.Any())
+{
+    <div class="mt-3">
+        <h3 class="text-secondary">Режимів зйомки ще немає</h3>
+    </div>
+}
+
+@* Форма створення *@
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+        <form action="/camerasettings/new" method="post">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Новий режим зйомки</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="width" class="form-label">Роздільна здатність:</label><br>
+                    <input style="width: 30%; display: inline-block" type="number" class="form-control" id="width" name="width" min="1" placeholder="1920" required>
+                    x
+                    <input style="width: 30%; display: inline-block" type="number" class="form-control" id="height" name="height" min="1" placeholder="1080" required>
+                </div>
+                <div class="mb-3">
+                    <label for="exposition" class="form-label">Витримка (в долях секунди):</label>
+                    <input type="number" class="form-control" id="exposition" name="exposureTime" min="1" placeholder="1000" required>
+                </div>
+                <div class="mb-3">
+                    <label for="iso" class="form-label">ISO:</label>
+                    <input type="number" class="form-control" id="iso" name="iso" min="1" placeholder="100" required>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрити</button>
+                <button type="submit" class="btn btn-primary">Створити</button>
+            </div>
+        </form>
+    </div>
+</div>
+</div>

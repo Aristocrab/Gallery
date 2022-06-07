@@ -42,8 +42,8 @@ public abstract class Album : Base<Album>
     
     public string GetAlbumType()
     {
-        if (this is PhotoAlbum) return "Фотоальбом";
         if (this is VideoAlbum) return "Відеоальбом";
+        if (this is PhotoAlbum) return "Фотоальбом";
         return "Змішаний альбом";
     }
 
